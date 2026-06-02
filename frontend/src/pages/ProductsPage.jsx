@@ -16,6 +16,8 @@ import { analyticsService } from "../services/analyticsService";
 import api from "../services/api";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const resolveMedia = (url) =>
+  !url ? null : url.startsWith("http") ? url : `${API_BASE}${url}`;
 const CATEGORIES = ["Electronics", "Clothing", "Food", "Furniture", "Books", "Tools", "Other"];
 
 export default function ProductsPage() {
@@ -196,7 +198,7 @@ export default function ProductsPage() {
                     <td>
                       {p.image_url ? (
                         <img
-                          src={`${API_BASE}${p.image_url}`}
+                          src={resolveMedia(p.image_url)}
                           alt={p.name}
                           style={{ width: 44, height: 44, borderRadius: 8, objectFit: "cover", cursor: "pointer", border: "1px solid var(--border)" }}
                           onClick={() => handleViewDetail(p)}

@@ -3,6 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Package, Image, Film, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle, Edit2 } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
+// If the URL is already absolute (Cloudinary), use it directly.
+// If relative (/uploads/...), prepend the backend API base.
+const resolveMedia = (url) =>
+  !url ? null : url.startsWith("http") ? url : `${API}${url}`;
 
 function stockBadge(p) {
   if (p.quantity === 0) return <span className="badge badge-danger">Out of Stock</span>;
@@ -19,8 +23,8 @@ export default function ProductDetailModal({ product, open, onClose, onEdit }) {
 
   if (!product) return null;
 
-  const imgSrc = product.image_url ? `${API}${product.image_url}` : null;
-  const vidSrc = product.video_url ? `${API}${product.video_url}` : null;
+  const imgSrc = resolveMedia(product.image_url);
+  const vidSrc = resolveMedia(product.video_url);
 
   return (
     <AnimatePresence>
