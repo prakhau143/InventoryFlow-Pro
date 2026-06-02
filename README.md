@@ -13,7 +13,7 @@
 | Frontend | https://inventoryflow-pro.vercel.app |
 | Backend API | https://inventoryflow-pro.onrender.com |
 | API Docs | https://inventoryflow-pro.onrender.com/docs |
-| Docker Hub | `docker pull yourusername/inventoryflow-pro-backend:latest` |
+| Docker Hub | [`prakhu123/inventoryflow-pro-backend`](https://hub.docker.com/r/prakhu123/inventoryflow-pro-backend) |
 
 ---
 
@@ -214,13 +214,13 @@ npm run dev
 
 ```bash
 # Pull backend image
-docker pull yourusername/inventoryflow-pro-backend:latest
+docker pull prakhu123/inventoryflow-pro-backend:latest
 
 # Run with external DB
 docker run -p 8000:8000 \
   -e DATABASE_URL="postgresql://user:pass@host:5432/db" \
   -e SECRET_KEY="your-secret-key" \
-  yourusername/inventoryflow-pro-backend:latest
+  prakhu123/inventoryflow-pro-backend:latest
 ```
 
 ---
