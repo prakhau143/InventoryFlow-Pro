@@ -12,6 +12,7 @@ from app.models.order import Order
 from app.models.order_item import OrderItem
 from app.models.product import Product
 from app.models.user import User
+from sqlalchemy import case
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
@@ -21,22 +22,47 @@ def get_stats(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    total_products = db.query(Product).count()
+    total_products  = db.query(Product).count()
     total_customers = db.query(Customer).count()
-    total_orders = db.query(Order).count()
-    total_revenue = db.query(func.sum(Order.total_amount)).filter(Order.status != "Cancelled").scalar() or 0.0
-    low_stock_count = db.query(Product).filter(Product.quantity <= Product.low_stock_threshold).count()
-    pending_orders = db.query(Order).filter(Order.status == "Pending").count()
+    total_orders    = db.query(Order).count()
+
+    # Revenue = sum of order totals (selling price × qty), excl. cancelled
+    total_revenue = (
+        db.query(func.sum(Order.total_amount))
+        .filter(Order.status != "Cancelled")
+        .scalar() or 0.0
+    )
+
+    # Total Earnings (Profit) = Σ (unit_price − cost_price) × qty
+    # for every item in non-cancelled orders where cost_price was set.
+    # Items with no cost_price (NULL or 0) contribute their full subtotal
+    # as earnings (we can't subtract unknown cost).
+    total_earnings = (
+        db.query(
+            func.sum(
+                (OrderItem.unit_price - func.coalesce(Product.cost_price, 0))
+                * OrderItem.quantity
+            )
+        )
+        .join(Order,   Order.id   == OrderItem.order_id)
+        .join(Product, Product.id == OrderItem.product_id)
+        .filter(Order.status != "Cancelled")
+        .scalar() or 0.0
+    )
+
+    low_stock_count  = db.query(Product).filter(Product.quantity <= Product.low_stock_threshold).count()
+    pending_orders   = db.query(Order).filter(Order.status == "Pending").count()
     completed_orders = db.query(Order).filter(Order.status == "Completed").count()
     cancelled_orders = db.query(Order).filter(Order.status == "Cancelled").count()
 
     return {
-        "total_products": total_products,
-        "total_customers": total_customers,
-        "total_orders": total_orders,
-        "total_revenue": round(total_revenue, 2),
-        "low_stock_count": low_stock_count,
-        "pending_orders": pending_orders,
+        "total_products":   total_products,
+        "total_customers":  total_customers,
+        "total_orders":     total_orders,
+        "total_revenue":    round(float(total_revenue),  2),
+        "total_earnings":   round(float(total_earnings), 2),
+        "low_stock_count":  low_stock_count,
+        "pending_orders":   pending_orders,
         "completed_orders": completed_orders,
         "cancelled_orders": cancelled_orders,
     }
