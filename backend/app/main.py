@@ -51,10 +51,12 @@ app.include_router(inventory_history.router, prefix="/api")
 
 
 @app.get("/health", tags=["Health"])
+@app.head("/health")          # Render health-check uses HEAD
 def health_check():
     return {"status": "ok", "service": "InventoryFlow Pro API"}
 
 
 @app.get("/", tags=["Root"])
+@app.head("/")                # Render port-detection probe uses HEAD /
 def root():
     return {"message": "InventoryFlow Pro API", "docs": "/docs"}
