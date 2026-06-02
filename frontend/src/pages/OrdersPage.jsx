@@ -146,7 +146,7 @@ export default function OrdersPage() {
         {loading ? <SkeletonTable rows={5} cols={6}/> : (
           <div className="table-wrapper">
             <table>
-              <thead><tr><th>Order #</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+              <thead><tr><th>Order #</th><th>Customer</th><th>Amount</th><th>Status</th><th className="hide-mobile">Date</th><th>Actions</th></tr></thead>
               <tbody>
                 {orders.length === 0 ? (
                   <tr><td colSpan={6}><div className="empty-state"><ShoppingCart size={40}/><h3>No orders found</h3></div></td></tr>
@@ -180,7 +180,7 @@ export default function OrdersPage() {
                         ))}
                       </select>
                     </td>
-                    <td style={{color:"var(--text-muted)",fontSize:"0.8rem"}}>{new Date(o.created_at).toLocaleString()}</td>
+                    <td className="hide-mobile" style={{color:"var(--text-muted)",fontSize:"0.8rem"}}>{new Date(o.created_at).toLocaleString()}</td>
                     <td>
                       <div style={{display:"flex",gap:6}}>
                         <button className="btn btn-secondary btn-icon btn-sm" onClick={()=>navigate(`/orders/${o.id}`)}><Eye size={13}/></button>

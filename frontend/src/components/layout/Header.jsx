@@ -10,10 +10,8 @@ export default function Header({ onMenuToggle, title }) {
     <header className="topbar">
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <button
-          className="btn-icon btn-secondary"
+          className="btn-icon btn-secondary mobile-menu-btn"
           onClick={onMenuToggle}
-          style={{ display: "none" }}
-          id="menu-btn"
         >
           <Menu size={18} />
         </button>

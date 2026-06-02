@@ -385,20 +385,146 @@ tbody tr:hover td { background: var(--bg-card-hover); }
 .order-items-builder { display: flex; flex-direction: column; gap: 10px; }
 .order-item-row { display: grid; grid-template-columns: 1fr 100px 80px 36px; gap: 8px; align-items: end; }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .sidebar { transform: translateX(-100%); }
-  .sidebar.open { transform: translateX(0); }
-  .main-content { margin-left: 0; }
-  .page-container { padding: 20px 16px; }
-  .form-row { grid-template-columns: 1fr; }
-  .stats-grid { grid-template-columns: 1fr 1fr; }
+/* ═══════════════════════════════════════════════
+   RESPONSIVE — Mobile-first breakpoints
+   ▸ < 768px  → mobile phones
+   ▸ < 480px  → small phones
+   ═══════════════════════════════════════════════ */
+
+/* Hamburger shows ONLY on mobile; hidden on desktop */
+.mobile-menu-btn  { display: none; }
+/* Sidebar X-close shows ONLY on mobile; hidden on desktop */
+.sidebar-close-btn { display: none; }
+
+/* ── Tablet / Large Phone (≤ 1024px) ── */
+@media (max-width: 1024px) {
+  :root { --sidebar-w: 220px; }
+  .page-container { padding: 24px 20px; }
+  .topbar { padding: 14px 20px; }
+  .stats-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
   .charts-grid { grid-template-columns: 1fr; }
-  .order-item-row { grid-template-columns: 1fr 80px; }
 }
 
+/* ── Mobile (≤ 768px) ── */
+@media (max-width: 768px) {
+  /* Sidebar: slide-in overlay */
+  .sidebar {
+    transform: translateX(-100%);
+    width: 260px;
+    box-shadow: var(--shadow-lg);
+    z-index: 300;
+  }
+  .sidebar.open { transform: translateX(0); }
+
+  /* Show hamburger + sidebar close */
+  .mobile-menu-btn   { display: flex; }
+  .sidebar-close-btn { display: flex; }
+
+  /* Main content stretches full width */
+  .main-content { margin-left: 0; }
+
+  /* Topbar */
+  .topbar { padding: 12px 16px; }
+
+  /* Page */
+  .page-container { padding: 16px 12px; }
+  .page-title  { font-size: 1.2rem; }
+  .page-header { margin-bottom: 16px; gap: 10px; }
+  .page-header > div:last-child { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* Forms */
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+
+  /* Stats grid — 2 columns on mobile */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  /* Charts */
+  .charts-grid { grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px; }
+  .chart-card  { height: 220px; }
+
+  /* Tables: horizontal scroll + tighter cells */
+  .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  th { padding: 10px 10px; font-size: 0.68rem; }
+  td { padding: 10px 10px; font-size: 0.82rem; }
+
+  /* Hide less-important table columns on mobile */
+  .hide-mobile { display: none !important; }
+
+  /* Modals: full-width, near-full-height */
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal {
+    max-width: 100% !important;
+    width: 100%;
+    max-height: 92vh;
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 20px 16px;
+  }
+  .modal-lg { max-width: 100% !important; }
+
+  /* Modal product form: force single column */
+  .modal .modal-two-col { grid-template-columns: 1fr !important; }
+
+  /* Auth card */
+  .auth-card  { padding: 24px 20px; }
+  .auth-logo  { margin-bottom: 20px; }
+
+  /* Search bar */
+  .search-bar { gap: 8px; }
+  .search-input-wrap { min-width: 0; }
+
+  /* Order item builder */
+  .order-item-row { grid-template-columns: 1fr 72px 60px 36px; gap: 6px; }
+
+  /* Pagination: smaller buttons */
+  .page-btn { padding: 5px 9px; font-size: 0.78rem; }
+
+  /* Sidebar backdrop */
+  .sidebar-backdrop { backdrop-filter: blur(2px); }
+
+  /* Topbar title sizing */
+  .topbar h1 { font-size: 0.95rem; }
+
+  /* Stat card content */
+  .stats-grid > * { padding: 16px 14px !important; }
+  .stats-grid > * > div[style*="1.75rem"] { font-size: 1.4rem !important; }
+}
+
+/* ── Small Phone (≤ 480px) ── */
 @media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr; }
+  /* Stats: 2-col still works but text is smaller */
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* Charts shorter */
+  .chart-card { height: 180px; }
+
+  /* Auth card full width */
+  .auth-card { max-width: 100%; border-radius: var(--radius); padding: 20px 16px; }
+
+  /* Page title */
+  .page-title { font-size: 1.1rem; }
+
+  /* Table padding minimal */
+  th { padding: 8px; font-size: 0.65rem; }
+  td { padding: 8px; font-size: 0.8rem; }
+
+  /* Order item: 2 col */
+  .order-item-row { grid-template-columns: 1fr 60px; gap: 6px; }
+  .order-item-row > *:nth-child(3),
+  .order-item-row > *:nth-child(4) { display: none; }
+
+  /* Topbar */
+  .topbar { padding: 10px 12px; }
+  .topbar-right { gap: 8px; }
+  .topbar h1 { font-size: 0.875rem; }
+
+  /* Modals */
+  .modal { padding: 16px 12px; max-height: 95vh; }
+  .modal-footer { flex-wrap: wrap; }
+  .modal-footer .btn { flex: 1; justify-content: center; }
 }
 
 /* Animations */

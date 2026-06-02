@@ -47,7 +47,7 @@ export default function Sidebar({ open, onClose }) {
                 </div>
               </div>
             </div>
-            <button className="btn-icon btn-secondary" onClick={onClose} style={{display:"none"}} id="sidebar-close">
+            <button className="btn-icon btn-secondary sidebar-close-btn" onClick={onClose}>
               <X size={16} />
             </button>
           </div>

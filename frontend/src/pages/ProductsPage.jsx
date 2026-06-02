@@ -271,7 +271,7 @@ export default function ProductsPage() {
       {/* Create/Edit Modal */}
       <Modal open={modalOpen} onClose={()=>setModalOpen(false)} title={editing ? "Edit Product" : "Add New Product"} size="modal-lg">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+          <div className="modal-two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
             {/* Left column — fields */}
             <div>
               <div className="form-row">
