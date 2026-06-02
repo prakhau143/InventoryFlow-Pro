@@ -9,6 +9,7 @@ class ProductCreate(BaseModel):
     sku: str
     description: Optional[str] = None
     price: float
+    cost_price: Optional[float] = 0.0
     quantity: int
     category: Optional[str] = None
     low_stock_threshold: int = 10
@@ -32,6 +33,7 @@ class ProductUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
+    cost_price: Optional[float] = None
     quantity: Optional[int] = None
     category: Optional[str] = None
     low_stock_threshold: Optional[int] = None
@@ -57,6 +59,7 @@ class ProductOut(BaseModel):
     sku: str
     description: Optional[str]
     price: float
+    cost_price: Optional[float] = 0.0
     quantity: int
     category: Optional[str]
     low_stock_threshold: int

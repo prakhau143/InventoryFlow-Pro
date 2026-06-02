@@ -74,7 +74,8 @@ def get_orders_trend(
 ):
     now = datetime.now(timezone.utc)
     trend = []
-    for i in range(7, 0, -1):
+    # range(13, -1, -1) → 14 days ending TODAY (day 0 = today, previously excluded)
+    for i in range(13, -1, -1):
         day = now - timedelta(days=i)
         start = day.replace(hour=0, minute=0, second=0, microsecond=0)
         end = start + timedelta(days=1)

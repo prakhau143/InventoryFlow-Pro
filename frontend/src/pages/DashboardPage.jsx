@@ -73,7 +73,7 @@ export default function DashboardPage() {
       <div className="charts-grid">
         <motion.div className="glass" style={{ padding: 24, borderRadius: "var(--radius)" }} initial={{ opacity:0,y:16 }} animate={{ opacity:1,y:0 }} transition={{ delay:0.1 }}>
           <h3 style={{ fontWeight: 700, marginBottom: 4 }}>Orders & Revenue Trend</h3>
-          <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: 16 }}>Last 7 days</p>
+          <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: 16 }}>Last 14 days (including today)</p>
           <div className="chart-card"><OrdersLineChart data={trend} /></div>
         </motion.div>
 

@@ -72,6 +72,23 @@ export default function OrdersPage() {
     } catch (err) { toast.error(err.response?.data?.detail || "Status update failed"); } finally { setSubmitting(false); }
   };
 
+  // Inline status change directly from the dropdown in the table row
+  const handleInlineStatus = async (orderId, currentStatus, nextStatus) => {
+    if (nextStatus === currentStatus) return;
+    try {
+      await orderService.updateStatus(orderId, nextStatus);
+      toast.success(`Order #${orderId} → ${nextStatus}`);
+      load();
+    } catch (err) { toast.error(err.response?.data?.detail || "Status update failed"); }
+  };
+
+  const STATUS_STYLE = {
+    Pending:    { color: "#f59e0b", bg: "rgba(245,158,11,0.12)",  border: "rgba(245,158,11,0.3)"  },
+    Processing: { color: "#3b82f6", bg: "rgba(59,130,246,0.12)",  border: "rgba(59,130,246,0.3)"  },
+    Completed:  { color: "#10b981", bg: "rgba(16,185,129,0.12)",  border: "rgba(16,185,129,0.3)"  },
+    Cancelled:  { color: "#ef4444", bg: "rgba(239,68,68,0.12)",   border: "rgba(239,68,68,0.3)"   },
+  };
+
   const exportCsv = async () => {
     try {
       const res = await orderService.exportCsv();
@@ -139,14 +156,29 @@ export default function OrdersPage() {
                     <td>{o.customer_name || `Customer #${o.customer_id}`}</td>
                     <td><strong>${o.total_amount.toFixed(2)}</strong></td>
                     <td>
-                      <button
-                        className={`badge ${STATUS_COLORS[o.status] || "badge-muted"}`}
-                        style={{cursor:"pointer",border:"none",background:"none"}}
-                        onClick={()=>{ setStatusModal(o); setNewStatus(o.status); }}
-                        title="Click to change status"
+                      {/* Inline status dropdown — clearly shows it's changeable */}
+                      <select
+                        value={o.status}
+                        onChange={(e) => handleInlineStatus(o.id, o.status, e.target.value)}
+                        style={{
+                          background: STATUS_STYLE[o.status]?.bg || "var(--bg-card)",
+                          color: STATUS_STYLE[o.status]?.color || "var(--text-primary)",
+                          border: `1px solid ${STATUS_STYLE[o.status]?.border || "var(--border)"}`,
+                          borderRadius: 20,
+                          padding: "4px 10px",
+                          fontSize: "0.78rem",
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          outline: "none",
+                          appearance: "auto",
+                          minWidth: 120,
+                        }}
+                        title="Select to change order status"
                       >
-                        {o.status}
-                      </button>
+                        {["Pending","Processing","Completed","Cancelled"].map(s => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
                     </td>
                     <td style={{color:"var(--text-muted)",fontSize:"0.8rem"}}>{new Date(o.created_at).toLocaleString()}</td>
                     <td>

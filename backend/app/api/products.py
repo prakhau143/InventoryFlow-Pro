@@ -31,10 +31,17 @@ def get_products_analytics(
         key=lambda x: x["value"], reverse=True
     )[:10]
 
+    # Profit = (selling_price - cost_price) × quantity (only where cost_price is set)
+    total_profit = sum(
+        float((p.price - (p.cost_price or 0)) * p.quantity)
+        for p in products if p.cost_price and p.cost_price > 0
+    )
+
     return {
         "kpis": {
             "total_products": len(products),
             "total_stock_value": round(total_value, 2),
+            "total_potential_profit": round(total_profit, 2),
             "low_stock_count": low,
             "out_of_stock_count": out_of_stock,
         },

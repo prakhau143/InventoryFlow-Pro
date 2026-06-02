@@ -63,7 +63,7 @@ export default function ProductsPage() {
     setEditing(p);
     setPendingImage(null);
     setPendingVideo(null);
-    reset({ name: p.name, sku: p.sku, price: p.price, quantity: p.quantity, category: p.category || "", description: p.description || "", low_stock_threshold: p.low_stock_threshold });
+    reset({ name: p.name, sku: p.sku, price: p.price, cost_price: p.cost_price ?? 0, quantity: p.quantity, category: p.category || "", description: p.description || "", low_stock_threshold: p.low_stock_threshold });
     setModalOpen(true);
   };
 
@@ -83,7 +83,7 @@ export default function ProductsPage() {
   const onSubmit = async (data) => {
     setSubmitting(true);
     try {
-      const payload = { ...data, price: parseFloat(data.price), quantity: parseInt(data.quantity), low_stock_threshold: parseInt(data.low_stock_threshold) };
+      const payload = { ...data, price: parseFloat(data.price), cost_price: data.cost_price ? parseFloat(data.cost_price) : 0, quantity: parseInt(data.quantity), low_stock_threshold: parseInt(data.low_stock_threshold) };
       let productId;
       if (editing) {
         await productService.update(editing.id, payload);
@@ -220,7 +220,14 @@ export default function ProductsPage() {
                     </td>
                     <td><span style={{ fontFamily:"monospace", background:"var(--bg-card)", padding:"2px 8px", borderRadius:4, fontSize:"0.8rem" }}>{p.sku}</span></td>
                     <td>{p.category ? <span className="badge badge-muted">{p.category}</span> : "—"}</td>
-                    <td><strong>${p.price.toFixed(2)}</strong></td>
+                    <td>
+                      <strong>${p.price.toFixed(2)}</strong>
+                      {p.cost_price > 0 && (
+                        <div style={{ fontSize:"0.68rem", color:"var(--success)", marginTop:1 }}>
+                          margin: ${(p.price - p.cost_price).toFixed(2)}
+                        </div>
+                      )}
+                    </td>
                     <td>
                       <div style={{ display:"flex", alignItems:"center", gap:6 }}>
                         {p.quantity <= p.low_stock_threshold && p.quantity > 0 && <AlertTriangle size={13} color="var(--warning)"/>}
@@ -283,17 +290,25 @@ export default function ProductsPage() {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Price ($) *</label>
+                  <label className="form-label">Selling Price ($) *</label>
                   <input className="input" type="number" step="0.01" min="0" placeholder="0.00" {...register("price",{required:"Required",min:{value:0,message:"≥ 0"}})}/>
                   {errors.price && <p className="form-error">{errors.price.message}</p>}
                 </div>
+                <div className="form-group">
+                  <label className="form-label">
+                    Cost Price ($)
+                    <span style={{ fontSize:"0.7rem", color:"var(--text-muted)", marginLeft:6, fontWeight:400 }}>for profit calc</span>
+                  </label>
+                  <input className="input" type="number" step="0.01" min="0" placeholder="0.00" {...register("cost_price",{min:{value:0,message:"≥ 0"}})}/>
+                  {errors.cost_price && <p className="form-error">{errors.cost_price.message}</p>}
+                </div>
+              </div>
+              <div className="form-row">
                 <div className="form-group">
                   <label className="form-label">Quantity *</label>
                   <input className="input" type="number" min="0" placeholder="0" {...register("quantity",{required:"Required",min:{value:0,message:"≥ 0"}})}/>
                   {errors.quantity && <p className="form-error">{errors.quantity.message}</p>}
                 </div>
-              </div>
-              <div className="form-row">
                 <div className="form-group">
                   <label className="form-label">Category</label>
                   <select className="select" {...register("category")}>
@@ -301,10 +316,10 @@ export default function ProductsPage() {
                     {CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Low Stock Threshold</label>
-                  <input className="input" type="number" min="0" defaultValue={10} {...register("low_stock_threshold")}/>
-                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Low Stock Threshold</label>
+                <input className="input" type="number" min="0" defaultValue={10} {...register("low_stock_threshold")}/>
               </div>
             </div>
 
