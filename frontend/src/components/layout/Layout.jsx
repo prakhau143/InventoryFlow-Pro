@@ -4,12 +4,13 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 
 const titles = {
-  "/dashboard":  "Dashboard",
-  "/products":   "Products",
-  "/customers":  "Customers",
-  "/orders":     "Orders",
-  "/orders/new": "Create Order",
-  "/audit-logs": "Audit Logs",
+  "/dashboard":         "Dashboard",
+  "/products":          "Products",
+  "/customers":         "Customers",
+  "/orders":            "Orders",
+  "/orders/new":        "Create Order",
+  "/audit-logs":        "Audit Logs",
+  "/inventory-history": "Stock History",
 };
 
 export default function Layout({ children }) {

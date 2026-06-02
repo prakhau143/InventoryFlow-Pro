@@ -13,6 +13,7 @@ import OrdersPage from "./pages/OrdersPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import CreateOrderPage from "./pages/CreateOrderPage";
 import AuditLogsPage from "./pages/AuditLogsPage";
+import InventoryHistoryPage from "./pages/InventoryHistoryPage";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -40,7 +41,8 @@ function AppRoutes() {
       <Route path="/orders"     element={<ProtectedRoute><Layout><OrdersPage /></Layout></ProtectedRoute>} />
       <Route path="/orders/new" element={<ProtectedRoute><Layout><CreateOrderPage /></Layout></ProtectedRoute>} />
       <Route path="/orders/:id" element={<ProtectedRoute><Layout><OrderDetailPage /></Layout></ProtectedRoute>} />
-      <Route path="/audit-logs" element={<ProtectedRoute><Layout><AuditLogsPage /></Layout></ProtectedRoute>} />
+      <Route path="/audit-logs"        element={<ProtectedRoute><Layout><AuditLogsPage /></Layout></ProtectedRoute>} />
+      <Route path="/inventory-history" element={<ProtectedRoute><Layout><InventoryHistoryPage /></Layout></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );

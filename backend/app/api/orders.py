@@ -12,7 +12,7 @@ from app.models.order_item import OrderItem
 from app.models.product import Product
 from app.models.user import User
 from app.schemas.order import OrderCreate, OrderOut, OrderStatusUpdate
-from app.utils.audit import log_action
+from app.utils.audit import log_action, log_inventory_change
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
@@ -60,7 +60,9 @@ def create_order(
             subtotal=round(unit_price * item.quantity, 2),
         )
         db.add(order_item)
+        old_qty = product.quantity
         product.quantity -= item.quantity
+        log_inventory_change(db, product.id, old_qty, product.quantity, f"Order #{order.id} created", current_user.username, current_user.id)
 
     db.commit()
     db.refresh(order)
@@ -141,7 +143,9 @@ def update_order_status(
         for item in order.items:
             product = db.query(Product).filter(Product.id == item.product_id).first()
             if product:
+                old_qty = product.quantity
                 product.quantity += item.quantity
+                log_inventory_change(db, product.id, old_qty, product.quantity, f"Order #{order_id} cancelled — stock restored", current_user.username, current_user.id)
 
     order.status = data.status
     db.commit()
@@ -165,7 +169,9 @@ def delete_order(
         for item in order.items:
             product = db.query(Product).filter(Product.id == item.product_id).first()
             if product:
+                old_qty = product.quantity
                 product.quantity += item.quantity
+                log_inventory_change(db, product.id, old_qty, product.quantity, f"Order #{order_id} deleted — stock restored", current_user.username, current_user.id)
 
     db.delete(order)
     db.commit()

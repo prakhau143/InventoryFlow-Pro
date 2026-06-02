@@ -12,7 +12,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -83,7 +83,25 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div style={{ textAlign: "center", marginTop: 20, fontSize: "0.875rem", color: "var(--text-muted)" }}>
+        {/* Quick login hint */}
+        <div className="glass" style={{ padding: "12px 16px", borderRadius: "var(--radius-sm)", marginTop: 16 }}>
+          <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: 6, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Default credentials</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            {[["admin", "admin123", "admin"], ["manager", "manager123", "manager"]].map(([u, p, role]) => (
+              <button
+                key={u}
+                type="button"
+                onClick={() => { reset({ username: u, password: p }); }}
+                style={{ textAlign: "left", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 6, padding: "7px 10px", cursor: "pointer" }}
+              >
+                <div style={{ fontSize: "0.8rem", fontWeight: 600 }}>{u}</div>
+                <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>{role} · {p}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ textAlign: "center", marginTop: 14, fontSize: "0.875rem", color: "var(--text-muted)" }}>
           No account?{" "}
           <Link to="/register" style={{ color: "var(--accent)", textDecoration: "none", fontWeight: 500 }}>
             Register here

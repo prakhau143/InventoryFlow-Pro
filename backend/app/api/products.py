@@ -9,7 +9,7 @@ from app.database import get_db
 from app.models.product import Product
 from app.models.user import User
 from app.schemas.product import ProductCreate, ProductOut, ProductUpdate
-from app.utils.audit import log_action
+from app.utils.audit import log_action, log_inventory_change
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -24,6 +24,9 @@ def create_product(
         raise HTTPException(status_code=409, detail=f"SKU '{data.sku}' already exists")
     product = Product(**data.model_dump())
     db.add(product)
+    db.flush()
+    if product.quantity > 0:
+        log_inventory_change(db, product.id, 0, product.quantity, "Initial stock on creation", current_user.username, current_user.id)
     db.commit()
     db.refresh(product)
     log_action(db, "CREATE", "product", product.id, f"Created product: {product.name}", current_user.username, current_user.id)
@@ -50,7 +53,7 @@ def list_products(
     if low_stock:
         query = query.filter(Product.quantity <= Product.low_stock_threshold)
     total = query.count()
-    products = query.offset((page - 1) * per_page).limit(per_page).all()
+    products = query.order_by(Product.created_at.desc()).offset((page - 1) * per_page).limit(per_page).all()
     return {
         "items": [ProductOut.model_validate(p) for p in products],
         "total": total,
@@ -83,8 +86,11 @@ def update_product(
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     update_data = data.model_dump(exclude_unset=True)
+    old_qty = product.quantity
     for key, val in update_data.items():
         setattr(product, key, val)
+    if "quantity" in update_data and update_data["quantity"] != old_qty:
+        log_inventory_change(db, product.id, old_qty, update_data["quantity"], "Manual stock update", current_user.username, current_user.id)
     db.commit()
     db.refresh(product)
     log_action(db, "UPDATE", "product", product.id, f"Updated product: {product.name}", current_user.username, current_user.id)

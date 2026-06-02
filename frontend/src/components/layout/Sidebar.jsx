@@ -2,15 +2,16 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
   LayoutDashboard, Package, Users, ShoppingCart,
-  ClipboardList, LogOut, X, Activity
+  ClipboardList, LogOut, X, Activity, History
 } from "lucide-react";
 
 const navItems = [
-  { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { to: "/products",  icon: Package,          label: "Products" },
-  { to: "/customers", icon: Users,            label: "Customers" },
-  { to: "/orders",    icon: ShoppingCart,     label: "Orders" },
-  { to: "/audit-logs",icon: Activity,         label: "Audit Logs" },
+  { to: "/dashboard",          icon: LayoutDashboard, label: "Dashboard" },
+  { to: "/products",           icon: Package,          label: "Products" },
+  { to: "/customers",          icon: Users,            label: "Customers" },
+  { to: "/orders",             icon: ShoppingCart,     label: "Orders" },
+  { to: "/inventory-history",  icon: History,          label: "Stock History" },
+  { to: "/audit-logs",         icon: Activity,         label: "Audit Logs" },
 ];
 
 export default function Sidebar({ open, onClose }) {
