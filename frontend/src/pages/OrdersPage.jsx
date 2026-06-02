@@ -2,11 +2,14 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { Plus, Search, Eye, Trash2, RefreshCw, Download, ShoppingCart } from "lucide-react";
+import { Plus, Search, Eye, Trash2, RefreshCw, Download, ShoppingCart, Clock, DollarSign, TrendingUp } from "lucide-react";
 import Modal from "../components/ui/Modal";
 import Pagination from "../components/ui/Pagination";
-import { SkeletonTable } from "../components/ui/LoadingSkeleton";
+import { SkeletonTable, SkeletonCard } from "../components/ui/LoadingSkeleton";
+import StatsCard from "../components/dashboard/StatsCard";
+import OrdersTrendChart from "../components/charts/OrdersTrendChart";
 import { orderService } from "../services/orderService";
+import { analyticsService } from "../services/analyticsService";
 
 const STATUS_COLORS = {
   Pending:    "badge-warning",
@@ -27,6 +30,15 @@ export default function OrdersPage() {
   const [statusModal, setStatusModal] = useState(null);
   const [newStatus, setNewStatus] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+
+  useEffect(() => {
+    analyticsService.orders()
+      .then(r => setAnalytics(r.data))
+      .catch(() => {})
+      .finally(() => setAnalyticsLoading(false));
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -79,6 +91,30 @@ export default function OrdersPage() {
           <button className="btn btn-secondary btn-sm" onClick={exportCsv}><Download size={14}/> Export CSV</button>
           <button className="btn btn-primary" onClick={()=>navigate("/orders/new")}><Plus size={16}/> New Order</button>
         </div>
+      </div>
+
+      {/* ── Analytics: KPIs ── */}
+      <div className="stats-grid" style={{ marginBottom: 16 }}>
+        {analyticsLoading ? Array.from({length:4}).map((_,i)=><SkeletonCard key={i}/>) : <>
+          <StatsCard icon={ShoppingCart} label="Total Orders"      value={analytics?.kpis?.total_orders ?? 0}      gradient="grad-purple" iconColor="#6366f1" sub="All time" />
+          <StatsCard icon={Clock}        label="Pending Orders"    value={analytics?.kpis?.pending_orders ?? 0}    gradient="grad-amber"  iconColor="#f59e0b" sub="Awaiting action" />
+          <StatsCard icon={DollarSign}   label="Total Revenue"     value={`$${(analytics?.kpis?.total_revenue ?? 0).toLocaleString()}`} gradient="grad-green" iconColor="#10b981" sub="Excl. cancelled" />
+          <StatsCard icon={TrendingUp}   label="Orders This Month" value={analytics?.kpis?.orders_this_month ?? 0} gradient="grad-cyan"   iconColor="#06b6d4" sub="Current month" />
+        </>}
+      </div>
+
+      {/* ── Analytics: Charts ── */}
+      <div className="charts-grid" style={{ marginBottom: 20 }}>
+        <motion.div className="glass" style={{ padding: 24, borderRadius: "var(--radius)" }} initial={{ opacity:0,y:16 }} animate={{ opacity:1,y:0 }} transition={{ delay:0.05 }}>
+          <h3 style={{ fontWeight:700, marginBottom:4 }}>Orders Trend — Last 30 Days</h3>
+          <p style={{ fontSize:"0.8rem", color:"var(--text-muted)", marginBottom:16 }}>Daily order volume over the past month</p>
+          <div className="chart-card"><OrdersTrendChart data={analytics?.trend ?? []} mode="orders" /></div>
+        </motion.div>
+        <motion.div className="glass" style={{ padding: 24, borderRadius: "var(--radius)" }} initial={{ opacity:0,y:16 }} animate={{ opacity:1,y:0 }} transition={{ delay:0.1 }}>
+          <h3 style={{ fontWeight:700, marginBottom:4 }}>Revenue Trend — Last 30 Days</h3>
+          <p style={{ fontSize:"0.8rem", color:"var(--text-muted)", marginBottom:16 }}>Daily revenue from non-cancelled orders</p>
+          <div className="chart-card"><OrdersTrendChart data={analytics?.trend ?? []} mode="revenue" /></div>
+        </motion.div>
       </div>
 
       <div className="search-bar">

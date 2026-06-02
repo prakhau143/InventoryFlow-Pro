@@ -1,7 +1,9 @@
 import math
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
 from app.api.auth import get_current_user
@@ -15,6 +17,40 @@ from app.schemas.order import OrderCreate, OrderOut, OrderStatusUpdate
 from app.utils.audit import log_action, log_inventory_change
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
+
+
+@router.get("/analytics")
+def get_orders_analytics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    now = datetime.now(timezone.utc)
+
+    # 30-day daily trend
+    trend = []
+    for i in range(29, -1, -1):
+        day   = now - timedelta(days=i)
+        start = day.replace(hour=0, minute=0, second=0, microsecond=0)
+        end   = day.replace(hour=23, minute=59, second=59, microsecond=999999)
+        cnt = db.query(func.count(Order.id)).filter(Order.created_at.between(start, end)).scalar() or 0
+        rev = db.query(func.coalesce(func.sum(Order.total_amount), 0)).filter(
+            Order.created_at.between(start, end), Order.status != "Cancelled"
+        ).scalar() or 0
+        trend.append({"date": day.strftime("%b %d"), "orders": cnt, "revenue": round(float(rev), 2)})
+
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    total_rev   = db.query(func.coalesce(func.sum(Order.total_amount), 0)).filter(Order.status != "Cancelled").scalar() or 0
+    this_month  = db.query(func.count(Order.id)).filter(Order.created_at >= month_start).scalar() or 0
+
+    return {
+        "kpis": {
+            "total_orders":      db.query(func.count(Order.id)).scalar() or 0,
+            "pending_orders":    db.query(func.count(Order.id)).filter(Order.status == "Pending").scalar() or 0,
+            "total_revenue":     round(float(total_rev), 2),
+            "orders_this_month": this_month,
+        },
+        "trend": trend,
+    }
 
 
 @router.post("", response_model=OrderOut, status_code=201)

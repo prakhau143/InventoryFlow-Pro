@@ -2,12 +2,16 @@ import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { Plus, Search, Trash2, RefreshCw, Users, Eye, Edit2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Plus, Search, Trash2, RefreshCw, Users, Eye, Edit2, ToggleLeft, ToggleRight, UserCheck, UserX, UserPlus } from "lucide-react";
 import Modal from "../components/ui/Modal";
 import Pagination from "../components/ui/Pagination";
-import { SkeletonTable } from "../components/ui/LoadingSkeleton";
+import { SkeletonTable, SkeletonCard } from "../components/ui/LoadingSkeleton";
 import CustomerDetailModal from "../components/ui/CustomerDetailModal";
+import StatsCard from "../components/dashboard/StatsCard";
+import CustomerGrowthLine from "../components/charts/CustomerGrowthLine";
+import TopCustomersBar from "../components/charts/TopCustomersBar";
 import { customerService } from "../services/customerService";
+import { analyticsService } from "../services/analyticsService";
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState([]);
@@ -26,6 +30,15 @@ export default function CustomersPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [togglingId, setTogglingId] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+
+  useEffect(() => {
+    analyticsService.customers()
+      .then(r => setAnalytics(r.data))
+      .catch(() => {})
+      .finally(() => setAnalyticsLoading(false));
+  }, []);
 
   const { register: regCreate, handleSubmit: hsCreate, reset: resetCreate, formState: { errors: errCreate } } = useForm();
   const { register: regEdit, handleSubmit: hsEdit, reset: resetEdit, formState: { errors: errEdit } } = useForm();
@@ -115,6 +128,30 @@ export default function CustomersPage() {
         <button className="btn btn-primary" onClick={() => { resetCreate(); setCreateOpen(true); }}>
           <Plus size={16}/> Add Customer
         </button>
+      </div>
+
+      {/* ── Analytics: KPIs ── */}
+      <div className="stats-grid" style={{ marginBottom: 16 }}>
+        {analyticsLoading ? Array.from({length:4}).map((_,i)=><SkeletonCard key={i}/>) : <>
+          <StatsCard icon={Users}     label="Total Customers"  value={analytics?.kpis?.total ?? 0}          gradient="grad-purple" iconColor="#6366f1" sub="Registered" />
+          <StatsCard icon={UserCheck} label="Active Customers" value={analytics?.kpis?.active ?? 0}         gradient="grad-green"  iconColor="#10b981" sub="Currently active" />
+          <StatsCard icon={UserX}     label="Inactive"          value={analytics?.kpis?.inactive ?? 0}       gradient="grad-red"    iconColor="#ef4444" sub="Deactivated" />
+          <StatsCard icon={UserPlus}  label="New This Month"    value={analytics?.kpis?.new_this_month ?? 0} gradient="grad-cyan"   iconColor="#06b6d4" sub="Joined this month" />
+        </>}
+      </div>
+
+      {/* ── Analytics: Charts ── */}
+      <div className="charts-grid" style={{ marginBottom: 20 }}>
+        <motion.div className="glass" style={{ padding: 24, borderRadius: "var(--radius)" }} initial={{ opacity:0,y:16 }} animate={{ opacity:1,y:0 }} transition={{ delay:0.05 }}>
+          <h3 style={{ fontWeight:700, marginBottom:4 }}>Customer Registration Trend</h3>
+          <p style={{ fontSize:"0.8rem", color:"var(--text-muted)", marginBottom:16 }}>New customers over the last 12 months</p>
+          <div className="chart-card"><CustomerGrowthLine data={analytics?.growth ?? []} /></div>
+        </motion.div>
+        <motion.div className="glass" style={{ padding: 24, borderRadius: "var(--radius)" }} initial={{ opacity:0,y:16 }} animate={{ opacity:1,y:0 }} transition={{ delay:0.1 }}>
+          <h3 style={{ fontWeight:700, marginBottom:4 }}>Top Customers by Orders</h3>
+          <p style={{ fontSize:"0.8rem", color:"var(--text-muted)", marginBottom:16 }}>Most active customers ranked by order count</p>
+          <div className="chart-card"><TopCustomersBar data={analytics?.top_customers ?? []} /></div>
+        </motion.div>
       </div>
 
       {/* Search + Filter bar */}

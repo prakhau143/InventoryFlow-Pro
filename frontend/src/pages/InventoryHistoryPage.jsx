@@ -1,9 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { RefreshCw, TrendingUp, TrendingDown, History } from "lucide-react";
+import { RefreshCw, TrendingUp, TrendingDown, History, Activity, AlertTriangle } from "lucide-react";
 import Pagination from "../components/ui/Pagination";
-import { SkeletonTable } from "../components/ui/LoadingSkeleton";
+import { SkeletonTable, SkeletonCard } from "../components/ui/LoadingSkeleton";
+import StatsCard from "../components/dashboard/StatsCard";
+import StockMovementLine from "../components/charts/StockMovementLine";
+import LowStockRiskBar from "../components/charts/LowStockRiskBar";
+import { analyticsService } from "../services/analyticsService";
 import api from "../services/api";
 
 export default function InventoryHistoryPage() {
@@ -12,6 +16,15 @@ export default function InventoryHistoryPage() {
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+
+  useEffect(() => {
+    analyticsService.inventory()
+      .then(r => setAnalytics(r.data))
+      .catch(() => {})
+      .finally(() => setAnalyticsLoading(false));
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -29,13 +42,40 @@ export default function InventoryHistoryPage() {
     <div>
       <div className="page-header">
         <div>
-          <h2 className="page-title">Inventory History</h2>
+          <h2 className="page-title">Stock History</h2>
           <p className="page-subtitle">{total} stock movement records</p>
         </div>
         <button className="btn btn-secondary btn-sm" onClick={load}><RefreshCw size={14}/></button>
       </div>
 
-      <motion.div className="glass" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+      {/* ── Analytics: KPIs ── */}
+      <div className="stats-grid" style={{ marginBottom: 16 }}>
+        {analyticsLoading ? Array.from({length:4}).map((_,i)=><SkeletonCard key={i}/>) : <>
+          <StatsCard icon={Activity}      label="Total Movements"  value={analytics?.kpis?.total_movements ?? 0} gradient="grad-purple" iconColor="#6366f1" sub="All time events" />
+          <StatsCard icon={TrendingUp}    label="Total Stock Added" value={analytics?.kpis?.total_added ?? 0}    gradient="grad-green"  iconColor="#10b981" sub="Units received" />
+          <StatsCard icon={TrendingDown}  label="Stock Removed"     value={analytics?.kpis?.total_removed ?? 0}  gradient="grad-red"    iconColor="#ef4444" sub="Units consumed / sold" />
+          <StatsCard icon={AlertTriangle} label="Low Stock Products" value={analytics?.kpis?.low_stock_count ?? 0} gradient="grad-amber" iconColor="#f59e0b" sub="Below threshold" />
+        </>}
+      </div>
+
+      {/* ── Analytics: Charts ── */}
+      <div className="charts-grid" style={{ marginBottom: 20 }}>
+        <motion.div className="glass" style={{ padding: 24, borderRadius: "var(--radius)" }} initial={{ opacity:0,y:16 }} animate={{ opacity:1,y:0 }} transition={{ delay:0.05 }}>
+          <h3 style={{ fontWeight:700, marginBottom:4 }}>Inventory Movement — Last 30 Days</h3>
+          <p style={{ fontSize:"0.8rem", color:"var(--text-muted)", marginBottom:16 }}>Stock added vs removed daily</p>
+          <div className="chart-card"><StockMovementLine data={analytics?.movement ?? []} /></div>
+        </motion.div>
+        <motion.div className="glass" style={{ padding: 24, borderRadius: "var(--radius)" }} initial={{ opacity:0,y:16 }} animate={{ opacity:1,y:0 }} transition={{ delay:0.1 }}>
+          <h3 style={{ fontWeight:700, marginBottom:4 }}>Low Stock Risk Analysis</h3>
+          <p style={{ fontSize:"0.8rem", color:"var(--text-muted)", marginBottom:16 }}>
+            Products sorted by quantity — <span style={{ color:"var(--danger)" }}>red = critical</span>, <span style={{ color:"var(--warning)" }}>amber = low</span>
+          </p>
+          <div className="chart-card"><LowStockRiskBar data={analytics?.low_stock_risk ?? []} /></div>
+        </motion.div>
+      </div>
+
+      {/* ── Movements Table ── */}
+      <motion.div className="glass" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay:0.15 }}>
         {loading ? <SkeletonTable rows={8} cols={7}/> : (
           <div className="table-wrapper">
             <table>

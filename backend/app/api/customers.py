@@ -1,7 +1,9 @@
 import math
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.api.auth import get_current_user
@@ -13,6 +15,50 @@ from app.schemas.customer import CustomerCreate, CustomerOut, CustomerUpdate
 from app.utils.audit import log_action
 
 router = APIRouter(prefix="/customers", tags=["Customers"])
+
+
+@router.get("/analytics")
+def get_customers_analytics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    now = datetime.now(timezone.utc)
+
+    # 12-month growth
+    growth = []
+    for i in range(11, -1, -1):
+        d = now - timedelta(days=30 * i)
+        ym = d.strftime("%Y-%m")
+        cnt = db.query(func.count(Customer.id)).filter(
+            func.to_char(Customer.created_at, "YYYY-MM") == ym
+        ).scalar() or 0
+        growth.append({"month": d.strftime("%b"), "customers": cnt})
+
+    # Top customers by order count
+    top = (
+        db.query(Customer.full_name, func.count(Order.id).label("cnt"))
+        .outerjoin(Order, Order.customer_id == Customer.id)
+        .group_by(Customer.id, Customer.full_name)
+        .order_by(func.count(Order.id).desc())
+        .limit(10)
+        .all()
+    )
+
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    active   = db.query(func.count(Customer.id)).filter(Customer.is_active == True).scalar() or 0
+    inactive = db.query(func.count(Customer.id)).filter(Customer.is_active == False).scalar() or 0
+    new_this_month = db.query(func.count(Customer.id)).filter(Customer.created_at >= month_start).scalar() or 0
+
+    return {
+        "kpis": {
+            "total": db.query(func.count(Customer.id)).scalar() or 0,
+            "active": active,
+            "inactive": inactive,
+            "new_this_month": new_this_month,
+        },
+        "growth": growth,
+        "top_customers": [{"name": t[0][:18], "orders": t[1]} for t in top if t[1] > 0],
+    }
 
 
 @router.post("", response_model=CustomerOut, status_code=201)

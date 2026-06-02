@@ -14,6 +14,40 @@ from app.utils.audit import log_action, log_inventory_change
 router = APIRouter(prefix="/products", tags=["Products"])
 
 
+@router.get("/analytics")
+def get_products_analytics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    products = db.query(Product).all()
+    in_stock    = sum(1 for p in products if p.quantity > 50)
+    medium      = sum(1 for p in products if 10 <= p.quantity <= 50)
+    low         = sum(1 for p in products if 0 < p.quantity < 10)
+    out_of_stock= sum(1 for p in products if p.quantity == 0)
+    total_value = sum(float(p.price * p.quantity) for p in products)
+
+    valuable = sorted(
+        [{"name": p.name[:22], "value": round(float(p.price * p.quantity), 2)} for p in products if p.quantity > 0],
+        key=lambda x: x["value"], reverse=True
+    )[:10]
+
+    return {
+        "kpis": {
+            "total_products": len(products),
+            "total_stock_value": round(total_value, 2),
+            "low_stock_count": low,
+            "out_of_stock_count": out_of_stock,
+        },
+        "inventory_status": [
+            {"name": "In Stock (>50)",  "value": in_stock,     "color": "#10b981"},
+            {"name": "Medium (10-50)",  "value": medium,       "color": "#f59e0b"},
+            {"name": "Low (<10)",       "value": low,          "color": "#ef4444"},
+            {"name": "Out of Stock",    "value": out_of_stock, "color": "#6b7280"},
+        ],
+        "top_valuable": valuable,
+    }
+
+
 @router.post("", response_model=ProductOut, status_code=201)
 def create_product(
     data: ProductCreate,

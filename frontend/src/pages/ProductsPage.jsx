@@ -2,13 +2,17 @@ import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { Plus, Search, Edit2, Trash2, Download, RefreshCw, AlertTriangle, Package, Eye, Image, Film } from "lucide-react";
+import { Plus, Search, Edit2, Trash2, Download, RefreshCw, AlertTriangle, Package, Eye, DollarSign, Archive, BoxSelect } from "lucide-react";
 import Modal from "../components/ui/Modal";
 import Pagination from "../components/ui/Pagination";
-import { SkeletonTable } from "../components/ui/LoadingSkeleton";
+import { SkeletonTable, SkeletonCard } from "../components/ui/LoadingSkeleton";
 import ImageUpload from "../components/ui/ImageUpload";
 import ProductDetailModal from "../components/ui/ProductDetailModal";
+import StatsCard from "../components/dashboard/StatsCard";
+import StockStatusDonut from "../components/charts/StockStatusDonut";
+import TopValueBar from "../components/charts/TopValueBar";
 import { productService } from "../services/productService";
+import { analyticsService } from "../services/analyticsService";
 import api from "../services/api";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
@@ -30,7 +34,17 @@ export default function ProductsPage() {
   const [pendingVideo, setPendingVideo] = useState(null);
   const [uploadingMedia, setUploadingMedia] = useState(false);
 
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
+
+  useEffect(() => {
+    analyticsService.products()
+      .then(r => setAnalytics(r.data))
+      .catch(() => {})
+      .finally(() => setAnalyticsLoading(false));
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -129,6 +143,30 @@ export default function ProductsPage() {
           <button className="btn btn-secondary btn-sm" onClick={exportCsv}><Download size={14}/> Export CSV</button>
           <button className="btn btn-primary" onClick={openCreate}><Plus size={16}/> Add Product</button>
         </div>
+      </div>
+
+      {/* ── Analytics: KPIs ── */}
+      <div className="stats-grid" style={{ marginBottom: 16 }}>
+        {analyticsLoading ? Array.from({length:4}).map((_,i)=><SkeletonCard key={i}/>) : <>
+          <StatsCard icon={Package}       label="Total Products"    value={analytics?.kpis?.total_products ?? 0}     gradient="grad-purple" iconColor="#6366f1" sub="In inventory" />
+          <StatsCard icon={DollarSign}    label="Total Stock Value"  value={`$${((analytics?.kpis?.total_stock_value ?? 0)).toLocaleString()}`} gradient="grad-cyan" iconColor="#06b6d4" sub="Price × Quantity" />
+          <StatsCard icon={AlertTriangle} label="Low Stock Items"    value={analytics?.kpis?.low_stock_count ?? 0}    gradient="grad-amber" iconColor="#f59e0b" sub="Need restocking" />
+          <StatsCard icon={BoxSelect}     label="Out of Stock"       value={analytics?.kpis?.out_of_stock_count ?? 0} gradient="grad-red"   iconColor="#ef4444" sub="Zero quantity" />
+        </>}
+      </div>
+
+      {/* ── Analytics: Charts ── */}
+      <div className="charts-grid" style={{ marginBottom: 20 }}>
+        <motion.div className="glass" style={{ padding: 24, borderRadius: "var(--radius)" }} initial={{ opacity:0,y:16 }} animate={{ opacity:1,y:0 }} transition={{ delay:0.05 }}>
+          <h3 style={{ fontWeight:700, marginBottom:4 }}>Inventory Status Distribution</h3>
+          <p style={{ fontSize:"0.8rem", color:"var(--text-muted)", marginBottom:16 }}>Current stock health across all products</p>
+          <div className="chart-card"><StockStatusDonut data={analytics?.inventory_status ?? []} /></div>
+        </motion.div>
+        <motion.div className="glass" style={{ padding: 24, borderRadius: "var(--radius)" }} initial={{ opacity:0,y:16 }} animate={{ opacity:1,y:0 }} transition={{ delay:0.1 }}>
+          <h3 style={{ fontWeight:700, marginBottom:4 }}>Top 10 Most Valuable Products</h3>
+          <p style={{ fontSize:"0.8rem", color:"var(--text-muted)", marginBottom:16 }}>By total stock value (Price × Quantity)</p>
+          <div className="chart-card"><TopValueBar data={analytics?.top_valuable ?? []} /></div>
+        </motion.div>
       </div>
 
       <div className="search-bar">

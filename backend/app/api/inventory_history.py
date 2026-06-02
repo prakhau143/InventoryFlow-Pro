@@ -1,6 +1,8 @@
 import math
+from datetime import datetime, timezone, timedelta
 
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.api.auth import get_current_user
@@ -10,6 +12,55 @@ from app.models.product import Product
 from app.models.user import User
 
 router = APIRouter(prefix="/inventory-history", tags=["Inventory History"])
+
+
+@router.get("/analytics")
+def get_inventory_analytics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    now = datetime.now(timezone.utc)
+
+    # 30-day movement (stock added vs removed per day)
+    movement = []
+    for i in range(29, -1, -1):
+        day   = now - timedelta(days=i)
+        start = day.replace(hour=0, minute=0, second=0, microsecond=0)
+        end   = day.replace(hour=23, minute=59, second=59, microsecond=999999)
+        added   = db.query(func.coalesce(func.sum(InventoryHistory.change), 0)).filter(
+            InventoryHistory.created_at.between(start, end), InventoryHistory.change > 0
+        ).scalar() or 0
+        removed = db.query(func.coalesce(func.sum(func.abs(InventoryHistory.change)), 0)).filter(
+            InventoryHistory.created_at.between(start, end), InventoryHistory.change < 0
+        ).scalar() or 0
+        movement.append({"date": day.strftime("%b %d"), "added": int(added), "removed": int(removed)})
+
+    # Low stock risk — products sorted by quantity ascending (show most at-risk first)
+    low_risk = (
+        db.query(Product)
+        .filter(Product.quantity >= 0)
+        .order_by(Product.quantity.asc())
+        .limit(10)
+        .all()
+    )
+
+    total_added   = db.query(func.coalesce(func.sum(InventoryHistory.change), 0)).filter(InventoryHistory.change > 0).scalar() or 0
+    total_removed = db.query(func.coalesce(func.sum(func.abs(InventoryHistory.change)), 0)).filter(InventoryHistory.change < 0).scalar() or 0
+    low_count     = db.query(func.count(Product.id)).filter(Product.quantity < Product.low_stock_threshold).scalar() or 0
+
+    return {
+        "kpis": {
+            "total_movements": db.query(func.count(InventoryHistory.id)).scalar() or 0,
+            "total_added":     int(total_added),
+            "total_removed":   int(total_removed),
+            "low_stock_count": int(low_count),
+        },
+        "movement": movement,
+        "low_stock_risk": [
+            {"name": p.name[:20], "quantity": p.quantity, "threshold": p.low_stock_threshold}
+            for p in low_risk
+        ],
+    }
 
 
 @router.get("")
