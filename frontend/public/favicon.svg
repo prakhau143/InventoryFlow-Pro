@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" shape-rendering="geometricPrecision">
+  <defs>
+    <!-- Main background gradient: Electric Blue → Neon Violet -->
+    <linearGradient id="bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00D4FF"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <!-- Top face highlight gradient -->
+    <linearGradient id="topFace" x1="14" y1="18" x2="50" y2="30" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.88"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ─── Background: rounded square ─── -->
+  <rect width="64" height="64" rx="13" fill="url(#bg)"/>
+
+  <!-- ─── Subtle inner glow ring (premium glass feel) ─── -->
+  <rect x="1" y="1" width="62" height="62" rx="12.5"
+        fill="none" stroke="white" stroke-width="1" stroke-opacity="0.18"/>
+
+  <!-- ─── Growth arrow (filled triangle) ── sits above the cube ─── -->
+  <!-- Upward-pointing filled triangle: strong at 16px, elegant at 64px -->
+  <polygon points="32,4 41,14 23,14"
+           fill="white" fill-opacity="0.95"/>
+
+  <!-- ─── Isometric Cube (3 filled faces) ─── -->
+  <!--  Top face  — brightest (most visible at all sizes) -->
+  <polygon points="32,16 50,25.5 32,35 14,25.5"
+           fill="url(#topFace)"/>
+
+  <!--  Right face — medium brightness -->
+  <polygon points="50,25.5 50,41.5 32,51 32,35"
+           fill="white" fill-opacity="0.62"/>
+
+  <!--  Left face  — darkest (gives 3D depth) -->
+  <polygon points="14,25.5 14,41.5 32,51 32,35"
+           fill="white" fill-opacity="0.35"/>
+
+  <!-- ─── Cube edge lines (crisp at 32px+, invisible at 16px — fine) ─── -->
+  <!-- Top face outline -->
+  <polyline points="32,16 50,25.5 32,35 14,25.5 32,16"
+            fill="none" stroke="white" stroke-width="0.8" stroke-opacity="0.55"
+            stroke-linejoin="round"/>
+  <!-- Vertical edges -->
+  <line x1="32" y1="35" x2="32" y2="51"
+        stroke="white" stroke-width="0.8" stroke-opacity="0.4"/>
+  <line x1="50" y1="25.5" x2="50" y2="41.5"
+        stroke="white" stroke-width="0.8" stroke-opacity="0.35"/>
+  <line x1="14" y1="25.5" x2="14" y2="41.5"
+        stroke="white" stroke-width="0.8" stroke-opacity="0.3"/>
+
+  <!-- ─── Arrow connector: thin line from cube top to arrow base ─── -->
+  <!-- Ties the arrow to the cube visually -->
+  <line x1="32" y1="14" x2="32" y2="16"
+        stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.85"/>
+</svg>
