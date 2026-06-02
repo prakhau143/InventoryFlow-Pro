@@ -3,8 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
-import { Zap } from "lucide-react";
 import api from "../services/api";
+import Logo from "../components/ui/Logo";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -34,13 +34,23 @@ export default function RegisterPage() {
         transition={{ duration: 0.4 }}
       >
         <div className="auth-logo">
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
-            <div style={{ background: "linear-gradient(135deg,#6366f1,#06b6d4)", borderRadius: 10, padding: 8, display: "flex" }}>
-              <Zap size={22} color="#fff" />
-            </div>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}>
+            <Logo size={60} />
           </div>
-          <h1>InventoryFlow Pro</h1>
-          <p>Create your account</p>
+          <div style={{ textAlign: "center" }}>
+            <div style={{
+              fontSize: "1.4rem", fontWeight: 800, letterSpacing: "-0.02em",
+              background: "linear-gradient(135deg,#00D4FF 0%,#8B5CF6 100%)",
+              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+              backgroundClip: "text", marginBottom: 3,
+            }}>
+              InventoryFlow <span style={{ fontWeight: 400 }}>Pro</span>
+            </div>
+            <div style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.22em", color: "#00D4FF", opacity: 0.5, textTransform: "uppercase", marginBottom: 6 }}>
+              Track · Manage · Grow
+            </div>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>Create your account</p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>

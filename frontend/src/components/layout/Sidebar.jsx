@@ -2,8 +2,9 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
   LayoutDashboard, Package, Users, ShoppingCart,
-  ClipboardList, LogOut, X, Activity, History
+  LogOut, X, Activity, History
 } from "lucide-react";
+import Logo from "../ui/Logo";
 
 const navItems = [
   { to: "/dashboard",          icon: LayoutDashboard, label: "Dashboard" },
@@ -29,9 +30,22 @@ export default function Sidebar({ open, onClose }) {
       <aside className={`sidebar ${open ? "open" : ""}`}>
         <div className="sidebar-logo">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <div className="sidebar-logo-text">⚡ InventoryFlow</div>
-              <div className="sidebar-logo-sub">Pro Edition</div>
+            {/* Premium logo mark + wordmark */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, overflow: "hidden" }}>
+              <Logo size={36} />
+              <div style={{ overflow: "hidden" }}>
+                <div style={{
+                  fontSize: "0.9rem", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.1,
+                  background: "linear-gradient(135deg,#00D4FF 0%,#8B5CF6 100%)",
+                  WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                  backgroundClip: "text", whiteSpace: "nowrap",
+                }}>
+                  InventoryFlow
+                </div>
+                <div style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.18em", color: "#00D4FF", opacity: 0.5, textTransform: "uppercase" }}>
+                  Pro Edition
+                </div>
+              </div>
             </div>
             <button className="btn-icon btn-secondary" onClick={onClose} style={{display:"none"}} id="sidebar-close">
               <X size={16} />

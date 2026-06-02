@@ -33,7 +33,8 @@ app.add_middleware(
 )
 
 # Serve uploaded media files
-UPLOAD_DIR = "/app/uploads"
+# UPLOAD_DIR env var lets CI/dev override the default Docker path (/app/uploads)
+UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "/app/uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
