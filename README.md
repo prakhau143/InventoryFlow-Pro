@@ -10,7 +10,7 @@
 
 | Service | URL |
 |---------|-----|
-| Frontend | https://inventoryflow-pro.vercel.app |
+| Frontend | https://inventory-flow-pro.vercel.app/dashboard |
 | Backend API | https://inventoryflow-pro.onrender.com |
 | API Docs | https://inventoryflow-pro.onrender.com/docs |
 | Docker Hub | [`prakhu123/inventoryflow-pro-backend`](https://hub.docker.com/r/prakhu123/inventoryflow-pro-backend) |
