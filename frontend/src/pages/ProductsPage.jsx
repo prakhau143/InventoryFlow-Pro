@@ -185,8 +185,14 @@ export default function ProductsPage() {
             <table>
               <thead>
                 <tr>
-                  <th style={{width:56}}>Image</th>
-                  <th>Name</th><th>SKU</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th>
+                  <th className="hide-mobile" style={{width:56}}>Img</th>
+                  <th>Name</th>
+                  <th className="hide-mobile">SKU</th>
+                  <th className="hide-mobile">Category</th>
+                  <th className="hide-mobile">Price</th>
+                  <th>Stock</th>
+                  <th className="hide-mobile">Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -195,7 +201,7 @@ export default function ProductsPage() {
                 ) : products.map((p) => (
                   <tr key={p.id}>
                     {/* Thumbnail */}
-                    <td>
+                    <td className="hide-mobile">
                       {p.image_url ? (
                         <img
                           src={resolveMedia(p.image_url)}
@@ -220,9 +226,9 @@ export default function ProductsPage() {
                         {p.description?.slice(0, 36)}
                       </div>
                     </td>
-                    <td><span style={{ fontFamily:"monospace", background:"var(--bg-card)", padding:"2px 8px", borderRadius:4, fontSize:"0.8rem" }}>{p.sku}</span></td>
-                    <td>{p.category ? <span className="badge badge-muted">{p.category}</span> : "—"}</td>
-                    <td>
+                    <td className="hide-mobile"><span style={{ fontFamily:"monospace", background:"var(--bg-card)", padding:"2px 8px", borderRadius:4, fontSize:"0.8rem" }}>{p.sku}</span></td>
+                    <td className="hide-mobile">{p.category ? <span className="badge badge-muted">{p.category}</span> : "—"}</td>
+                    <td className="hide-mobile">
                       <strong>${p.price.toFixed(2)}</strong>
                       {p.cost_price > 0 && (
                         <div style={{ fontSize:"0.68rem", color:"var(--success)", marginTop:1 }}>
@@ -236,7 +242,7 @@ export default function ProductsPage() {
                         <span style={{ color: p.quantity===0?"var(--danger)":p.quantity<=p.low_stock_threshold?"var(--warning)":"inherit" }}>{p.quantity}</span>
                       </div>
                     </td>
-                    <td>
+                    <td className="hide-mobile">
                       {p.quantity === 0
                         ? <span className="badge badge-danger">Out of Stock</span>
                         : p.quantity <= p.low_stock_threshold

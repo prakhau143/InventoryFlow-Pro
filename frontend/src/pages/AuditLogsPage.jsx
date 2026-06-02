@@ -50,14 +50,14 @@ export default function AuditLogsPage() {
         <button className="btn btn-secondary btn-sm" onClick={exportCsv}><Download size={14}/> Export CSV</button>
       </div>
 
-      <div className="search-bar">
-        <select className="select" style={{ width: 160 }} value={resourceFilter} onChange={e => { setResourceFilter(e.target.value); setPage(1); }}>
+      <div className="search-bar" style={{ flexWrap: "wrap" }}>
+        <select className="select" style={{ flex: "1 1 130px", minWidth: 0 }} value={resourceFilter} onChange={e => { setResourceFilter(e.target.value); setPage(1); }}>
           <option value="">All Resources</option>
           <option value="product">Product</option>
           <option value="customer">Customer</option>
           <option value="order">Order</option>
         </select>
-        <select className="select" style={{ width: 150 }} value={actionFilter} onChange={e => { setActionFilter(e.target.value); setPage(1); }}>
+        <select className="select" style={{ flex: "1 1 120px", minWidth: 0 }} value={actionFilter} onChange={e => { setActionFilter(e.target.value); setPage(1); }}>
           <option value="">All Actions</option>
           <option value="CREATE">Create</option>
           <option value="UPDATE">Update</option>
@@ -70,17 +70,24 @@ export default function AuditLogsPage() {
         {loading ? <SkeletonTable rows={8} cols={6}/> : (
           <div className="table-wrapper">
             <table>
-              <thead><tr><th>#</th><th>Action</th><th>Resource</th><th>Details</th><th>User</th><th>Time</th></tr></thead>
+              <thead><tr>
+                <th className="hide-mobile">#</th>
+                <th>Action</th>
+                <th>Resource</th>
+                <th className="hide-mobile">Details</th>
+                <th className="hide-mobile">User</th>
+                <th>Time</th>
+              </tr></thead>
               <tbody>
                 {logs.length === 0 ? (
                   <tr><td colSpan={6}><div className="empty-state"><Activity size={40}/><h3>No audit logs</h3><p>Actions will appear here</p></div></td></tr>
                 ) : logs.map((l) => (
                   <tr key={l.id}>
-                    <td style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>{l.id}</td>
+                    <td className="hide-mobile" style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>{l.id}</td>
                     <td><span className={`badge ${ACTION_COLORS[l.action] || "badge-muted"}`}>{l.action}</span></td>
                     <td><span className={`badge ${RESOURCE_COLORS[l.resource] || "badge-muted"}`} style={{ textTransform: "capitalize" }}>{l.resource}{l.resource_id ? ` #${l.resource_id}` : ""}</span></td>
-                    <td style={{ maxWidth: 320, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "0.85rem", color: "var(--text-secondary)" }}>{l.details}</td>
-                    <td><span style={{ color: "var(--accent)", fontWeight: 500 }}>{l.username}</span></td>
+                    <td className="hide-mobile" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "0.85rem", color: "var(--text-secondary)" }}>{l.details}</td>
+                    <td className="hide-mobile"><span style={{ color: "var(--accent)", fontWeight: 500 }}>{l.username}</span></td>
                     <td style={{ color: "var(--text-muted)", fontSize: "0.8rem", whiteSpace: "nowrap" }}>{new Date(l.created_at).toLocaleString()}</td>
                   </tr>
                 ))}

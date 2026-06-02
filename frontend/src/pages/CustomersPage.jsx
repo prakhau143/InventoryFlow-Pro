@@ -184,12 +184,12 @@ export default function CustomersPage() {
             <table>
               <thead>
                 <tr>
-                  <th>#</th>
+                  <th className="hide-mobile">#</th>
                   <th>Customer</th>
-                  <th>Email</th>
-                  <th>Phone</th>
+                  <th className="hide-mobile">Email</th>
+                  <th className="hide-mobile">Phone</th>
                   <th>Status</th>
-                  <th>Joined</th>
+                  <th className="hide-mobile">Joined</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -200,7 +200,7 @@ export default function CustomersPage() {
                   </td></tr>
                 ) : customers.map((c, i) => (
                   <tr key={c.id} style={{ opacity: c.is_active ? 1 : 0.6 }}>
-                    <td style={{ color: "var(--text-muted)", width: 40 }}>{(page-1)*10+i+1}</td>
+                    <td className="hide-mobile" style={{ color: "var(--text-muted)", width: 40 }}>{(page-1)*10+i+1}</td>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <div
@@ -226,8 +226,8 @@ export default function CustomersPage() {
                         </div>
                       </div>
                     </td>
-                    <td style={{ color: "var(--accent)", fontSize: "0.875rem" }}>{c.email}</td>
-                    <td style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>{c.phone || "—"}</td>
+                    <td className="hide-mobile" style={{ color: "var(--accent)", fontSize: "0.875rem" }}>{c.email}</td>
+                    <td className="hide-mobile" style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>{c.phone || "—"}</td>
                     <td>
                       {/* Active / Inactive toggle */}
                       <button
@@ -251,7 +251,7 @@ export default function CustomersPage() {
                         </span>
                       </button>
                     </td>
-                    <td style={{ color: "var(--text-muted)", fontSize: "0.8rem", whiteSpace: "nowrap" }}>
+                    <td className="hide-mobile" style={{ color: "var(--text-muted)", fontSize: "0.8rem", whiteSpace: "nowrap" }}>
                       {new Date(c.created_at).toLocaleDateString()}
                     </td>
                     <td>

@@ -1,4 +1,5 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { useIsMobile } from "../../hooks/useIsMobile";
 
 const Tip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
@@ -11,16 +12,26 @@ const Tip = ({ active, payload }) => {
 };
 
 export default function StockStatusDonut({ data }) {
+  const isMobile = useIsMobile();
   const hasData = data?.some(d => d.value > 0);
   if (!hasData) return <div className="empty-state" style={{ height: "100%" }}><p>Add products to see distribution</p></div>;
+  const r = isMobile ? { inner: 40, outer: 65 } : { inner: 55, outer: 90 };
   return (
     <ResponsiveContainer width="100%" height="100%">
       <PieChart>
-        <Pie data={data} cx="50%" cy="45%" innerRadius={55} outerRadius={90} paddingAngle={3} dataKey="value">
+        <Pie data={data} cx="50%" cy={isMobile ? "42%" : "45%"}
+          innerRadius={r.inner} outerRadius={r.outer} paddingAngle={3} dataKey="value">
           {data.map((e, i) => <Cell key={i} fill={e.color} />)}
         </Pie>
         <Tooltip content={<Tip />} />
-        <Legend formatter={v => <span style={{ color: "var(--text-secondary)", fontSize: 11 }}>{v}</span>} />
+        <Legend
+          layout="horizontal"
+          verticalAlign="bottom"
+          align="center"
+          iconSize={10}
+          wrapperStyle={{ paddingTop: 8, fontSize: isMobile ? 10 : 11 }}
+          formatter={v => <span style={{ color: "var(--text-secondary)", fontSize: isMobile ? 10 : 11 }}>{v}</span>}
+        />
       </PieChart>
     </ResponsiveContainer>
   );

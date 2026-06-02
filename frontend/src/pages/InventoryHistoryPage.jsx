@@ -80,7 +80,16 @@ export default function InventoryHistoryPage() {
           <div className="table-wrapper">
             <table>
               <thead>
-                <tr><th>Product</th><th>SKU</th><th>Change</th><th>Before</th><th>After</th><th>Reason</th><th>User</th><th>Time</th></tr>
+                <tr>
+                <th>Product</th>
+                <th className="hide-mobile">SKU</th>
+                <th>Change</th>
+                <th className="hide-mobile">Before</th>
+                <th className="hide-mobile">After</th>
+                <th className="hide-mobile">Reason</th>
+                <th className="hide-mobile">User</th>
+                <th>Time</th>
+              </tr>
               </thead>
               <tbody>
                 {records.length === 0 ? (
@@ -88,7 +97,7 @@ export default function InventoryHistoryPage() {
                 ) : records.map((r) => (
                   <tr key={r.id}>
                     <td><strong>{r.product_name}</strong></td>
-                    <td><span style={{ fontFamily: "monospace", fontSize: "0.8rem", background: "var(--bg-card)", padding: "2px 8px", borderRadius: 4 }}>{r.product_sku}</span></td>
+                    <td className="hide-mobile"><span style={{ fontFamily: "monospace", fontSize: "0.8rem", background: "var(--bg-card)", padding: "2px 8px", borderRadius: 4 }}>{r.product_sku}</span></td>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                         {r.change > 0
@@ -97,10 +106,10 @@ export default function InventoryHistoryPage() {
                         }
                       </div>
                     </td>
-                    <td style={{ color: "var(--text-secondary)" }}>{r.previous_quantity}</td>
-                    <td><strong>{r.new_quantity}</strong></td>
-                    <td style={{ fontSize: "0.8rem", color: "var(--text-secondary)", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.reason || "—"}</td>
-                    <td style={{ color: "var(--accent)" }}>{r.username}</td>
+                    <td className="hide-mobile" style={{ color: "var(--text-secondary)" }}>{r.previous_quantity}</td>
+                    <td className="hide-mobile"><strong>{r.new_quantity}</strong></td>
+                    <td className="hide-mobile" style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>{r.reason || "—"}</td>
+                    <td className="hide-mobile" style={{ color: "var(--accent)" }}>{r.username}</td>
                     <td style={{ color: "var(--text-muted)", fontSize: "0.8rem", whiteSpace: "nowrap" }}>{new Date(r.created_at).toLocaleString()}</td>
                   </tr>
                 ))}

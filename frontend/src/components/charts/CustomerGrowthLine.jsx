@@ -1,4 +1,5 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useIsMobile } from "../../hooks/useIsMobile";
 
 const Tip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
@@ -11,10 +12,11 @@ const Tip = ({ active, payload, label }) => {
 };
 
 export default function CustomerGrowthLine({ data }) {
+  const isMobile = useIsMobile();
   if (!data?.length) return <div className="empty-state" style={{ height: "100%" }}><p>No customer data yet</p></div>;
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <AreaChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+      <AreaChart data={data} margin={{ top: 4, right: 4, left: isMobile ? -28 : -20, bottom: 0 }}>
         <defs>
           <linearGradient id="custGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%"  stopColor="#06b6d4" stopOpacity={0.35} />
@@ -22,10 +24,11 @@ export default function CustomerGrowthLine({ data }) {
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-        <XAxis dataKey="month" tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
-        <YAxis tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
+        <XAxis dataKey="month" tick={{ fill: "var(--text-muted)", fontSize: isMobile ? 9 : 11 }} axisLine={false} tickLine={false}
+          interval={isMobile ? 2 : 0} />
+        <YAxis tick={{ fill: "var(--text-muted)", fontSize: isMobile ? 9 : 11 }} axisLine={false} tickLine={false} allowDecimals={false} width={isMobile ? 28 : 36} />
         <Tooltip content={<Tip />} />
-        <Area type="monotone" dataKey="customers" stroke="#06b6d4" strokeWidth={2.5} fill="url(#custGrad)" dot={{ fill: "#06b6d4", r: 3 }} activeDot={{ r: 5 }} />
+        <Area type="monotone" dataKey="customers" stroke="#06b6d4" strokeWidth={2.5} fill="url(#custGrad)" dot={false} activeDot={{ r: 5 }} />
       </AreaChart>
     </ResponsiveContainer>
   );
